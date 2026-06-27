@@ -1,30 +1,39 @@
-
-const cors = require('cors')
+const cors = require("cors");
 const express = require("express");
-const sql = require("msnodesqlv8");
-const connectionString = require("./config/connectdb");
-const userRouter = require("./routes/tasks");
+const { getPool } = require("./config/connectdb");
+const authRoutes = require("./routes/authRoutes");
+const passengerRoutes = require("./routes/passengerRoutes");
+const trainRoutes = require("./routes/trainRoutes");
+const stationRoutes = require("./routes/stationRoutes");
+const routeRoutes = require("./routes/routeRoutes");
+const ticketRoutes = require("./routes/ticketRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+
 const app = express();
-app.use(express.json()); 
+const serverPort = process.env.PORT || 4000;
+
+app.use(express.json());
 app.use(cors());
-const serverPort = 4000;
 
-const testConnection = () => {
-  sql.open(connectionString, (err, conn) => {
-    if (err) {
-      console.error("Database connection failed:", err);
-    } else {
-      console.log("Connected to database successfully!");
-      console.log(`Server is running at: http://localhost:${serverPort}`);
-    }
-  });
-};
+app.use("/api/auth", authRoutes);
+app.use("/api/passengers", passengerRoutes);
+app.use("/api/trains", trainRoutes);
+app.use("/api/stations", stationRoutes);
+app.use("/api/routes", routeRoutes);
+app.use("/api/tickets", ticketRoutes);
+app.use("/api/payments", paymentRoutes);
 
-app.use("/api", userRouter);
 app.get("/", (req, res) => {
-  return res.send("Hello I am runing"); 
+  return res.json({ message: "Backend is running" });
 });
 
-app.listen(serverPort, () => {
-  testConnection();
+app.listen(serverPort, async () => {
+  try {
+    await getPool();
+    console.log("Connected to database successfully!");
+  } catch (error) {
+    console.error("Database connection failed:", error.message);
+  }
+
+  console.log(`Server is running at: http://localhost:${serverPort}`);
 });

@@ -1,11 +1,26 @@
-const sql = require('mssql/msnodesqlv8');
-require('dotenv').config();
-const server_name= process.env.SERVER_NAME;
-const db_name= process.env.DB_NAME;
-const sql_port= process.env.SQL_PORT;
+const sql = require("mssql/msnodesqlv8");
+require("dotenv").config();
 
-const serverName = server_name; 
-const databaseName = db_name; 
-const sqlPort = sql_port;
+const dbConfig = {
+  server: process.env.SERVER_NAME,
+  database: process.env.DB_NAME,
+  port: process.env.SQL_PORT ? Number(process.env.SQL_PORT) : undefined,
+  driver: "msnodesqlv8",
+  options: {
+    trustedConnection: true,
+    trustServerCertificate: true,
+  },
+};
 
-module.exports = `Driver={SQL Server Native Client 11.0};Server=${serverName};Database=${databaseName};Trusted_Connection=Yes;`;
+let pool;
+
+const getPool = async () => {
+  if (pool) {
+    return pool;
+  }
+
+  pool = await sql.connect(dbConfig);
+  return pool;
+};
+
+module.exports = { sql, getPool };
