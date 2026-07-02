@@ -35,6 +35,7 @@ Run `database.sql` first to create the tables, then run `seed.sql` to add sample
 /api/routes
 /api/tickets
 /api/payments
+/api/admin
 ```
 
 ## Auth APIs
@@ -380,3 +381,224 @@ refunded_at
 - Ticket booking and cancellation use transactions so the database does not get half-updated.
 - Cancelled/refunded payment records are kept so booking history stays available.
 - List APIs use the same paginated response format: `page`, `limit`, `total`, `totalPages`, and `data`.
+
+## Admin APIs
+
+The seed file creates this default admin:
+
+```txt
+email: admin@train.com
+password: admin123
+```
+
+### Admin Login
+
+```txt
+POST /api/admin/login
+```
+
+Body:
+
+```json
+{
+  "email": "admin@train.com",
+  "password": "admin123"
+}
+```
+
+All admin APIs below need this header:
+
+```txt
+Authorization: Bearer ADMIN_TOKEN
+```
+
+### Dashboard
+
+```txt
+GET /api/admin/dashboard
+```
+
+Returns total passengers, trains, stations, routes, tickets, cancelled tickets, pending payments, and revenue.
+
+### Manage Trains
+
+```txt
+POST /api/admin/trains
+PUT /api/admin/trains/:id
+DELETE /api/admin/trains/:id
+```
+
+Train body:
+
+```json
+{
+  "train_name": "New Express",
+  "fc_capacity": 20,
+  "economy_capacity": 100,
+  "status": "active"
+}
+```
+
+If a train has bookings, delete will mark it `inactive` instead.
+
+### Manage Stations
+
+```txt
+POST /api/admin/stations
+PUT /api/admin/stations/:id
+DELETE /api/admin/stations/:id
+```
+
+Station body:
+
+```json
+{
+  "station_name": "Islamabad Station",
+  "city": "Islamabad"
+}
+```
+
+### Manage Routes
+
+```txt
+POST /api/admin/routes
+POST /api/admin/routes/:route_id/trains
+PUT /api/admin/routes/:id
+DELETE /api/admin/routes/:id
+```
+
+Create/update route body:
+
+```json
+{
+  "train_id": 1,
+  "source_station_id": 1,
+  "destination_station_id": 2,
+  "status": "active"
+}
+```
+
+Add another train to an existing route:
+
+```json
+{
+  "train_id": 3
+}
+```
+
+This copies the source and destination from the old route and creates a new route row for the new train.
+
+### Manage Schedules
+
+```txt
+POST /api/admin/schedules
+PUT /api/admin/schedules/:id
+DELETE /api/admin/schedules/:id
+```
+
+Schedule body:
+
+```json
+{
+  "train_id": 1,
+  "station_id": 1,
+  "arrival_time": null,
+  "departure_time": "2026-01-01 08:00:00"
+}
+```
+
+### Manage Prices
+
+```txt
+POST /api/admin/prices
+PUT /api/admin/prices
+```
+
+Body:
+
+```json
+{
+  "route_id": 1,
+  "class_name": "economy",
+  "fixed_price": 2500
+}
+```
+
+If the route/class price exists, it updates it. Otherwise it creates it.
+
+### View Bookings
+
+```txt
+GET /api/admin/bookings?page=1&limit=10
+```
+
+Filters:
+
+```txt
+passenger_id
+train_id
+route_id
+status
+travel_date
+```
+
+Cancel a ticket:
+
+```txt
+PATCH /api/admin/bookings/:ticket_id/cancel
+```
+
+Body:
+
+```json
+{
+  "reason": "Cancelled by railway office"
+}
+```
+
+### Manage Payments
+
+```txt
+GET /api/admin/payments?page=1&limit=10
+PATCH /api/admin/payments/:ticket_id/confirm
+PATCH /api/admin/payments/:ticket_id/refund
+```
+
+Payment filter:
+
+```txt
+payment_status
+```
+
+Refund body:
+
+```json
+{
+  "refund_reason": "Passenger requested refund"
+}
+```
+
+### Manage Passengers
+
+```txt
+GET /api/admin/passengers?page=1&limit=10
+GET /api/admin/passengers/:id
+PATCH /api/admin/passengers/:id/status
+```
+
+Passenger filters:
+
+```txt
+search
+status
+```
+
+Status body:
+
+```json
+{
+  "status": "inactive"
+}
+```
+
+Use `active` to reactivate the passenger.

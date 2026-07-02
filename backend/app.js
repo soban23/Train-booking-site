@@ -8,6 +8,7 @@ const stationRoutes = require("./routes/stationRoutes");
 const routeRoutes = require("./routes/routeRoutes");
 const ticketRoutes = require("./routes/ticketRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 const serverPort = process.env.PORT || 4000;
@@ -22,6 +23,7 @@ app.use("/api/stations", stationRoutes);
 app.use("/api/routes", routeRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => {
   return res.json({ message: "Backend is running" });
