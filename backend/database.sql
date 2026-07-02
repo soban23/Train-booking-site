@@ -7,6 +7,14 @@ CREATE TABLE passengers (
   status VARCHAR(20) DEFAULT 'active'
 );
 
+CREATE TABLE admins (
+  admin_id INT IDENTITY(1,1) PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  status VARCHAR(20) DEFAULT 'active'
+);
+
 CREATE TABLE trains (
   train_id INT IDENTITY(1,1) PRIMARY KEY,
   train_name VARCHAR(100) NOT NULL,

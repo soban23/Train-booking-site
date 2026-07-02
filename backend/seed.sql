@@ -5,6 +5,10 @@ VALUES
 ('Rawalpindi Station', 'Rawalpindi'),
 ('Multan Cantt', 'Multan');
 
+INSERT INTO admins (name, email, password, status)
+VALUES
+('Main Admin', 'admin@train.com', '$2b$10$tT7ZeRPJ2WFEnShrISIhv.ceNxETdpHuU.LeOHdras.ujDSz7Qgw6', 'active');
+
 INSERT INTO trains (train_name, fc_capacity, economy_capacity, status)
 VALUES
 ('Green Line Express', 20, 100, 'active'),
